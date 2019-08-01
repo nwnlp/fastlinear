@@ -4,6 +4,13 @@ project(fastlinear)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+#add_definitions( -DWEIGHT_T_USE_DOUBLE)
+#add_definitions( -DLABEL_T_USE_DOUBLE)
+
+
+
+
+
 
 include_directories(src/math)
 include_directories(src/solver)

@@ -47,7 +47,7 @@ extern "C" {
 #define LBFGS_IEEE_FLOAT    1
 #endif/*LBFGS_IEEE_FLOAT*/
 
-#if     LBFGS_FLOAT == 32
+#ifdef     LBFGS_FLOAT == 32
 typedef float lbfgsfloatval_t;
 
 #elif   LBFGS_FLOAT == 64

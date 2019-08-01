@@ -8,10 +8,10 @@
 
 #ifdef WEIGHT_T_USE_DOUBLE
 typedef double weight_t;
-#define LBFGS_FLOAT == 64
+#define LBFGS_FLOAT = 64
 #else
 typedef float weight_t;
-#define LBFGS_FLOAT == 32
+#define LBFGS_FLOAT = 32
 #endif
 
 #ifdef LABEL_T_USE_DOUBLE
