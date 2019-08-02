@@ -8,7 +8,7 @@
 #include <dataset.h>
 class ObjectiveFunction{
 public:
-    virtual void CalcGradients(Dataset::DATA_MAT& X, const Dataset::LABEL_VEC& y, const weight_t* w, float alpha) = 0;
+    virtual void CalcGradients(const Dataset::DATA_MAT& X, const Dataset::LABEL_VEC& y, const weight_t* w, float alpha) = 0;
     virtual void Init(uint32_t data_size, uint32_t weight_dim) =0;
     virtual weight_t* gradient() = 0;
     virtual weight_t loss() = 0;

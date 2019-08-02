@@ -8,6 +8,7 @@
 #include "objective_function.h"
 #include <cmath>
 #include <random>
+#include <assert.h>
 class BinaryObjective:public ObjectiveFunction{
 public:
     BinaryObjective(){}
@@ -19,17 +20,17 @@ public:
     void Init(uint32_t data_size, uint32_t weight_dim){
         weight_dim_ = weight_dim;
         data_size_ = data_size;
-        gradient_ = new weight_t(weight_dim);
-        z0_= new weight_t(data_size);
-        w_= new weight_t(data_size);
-
+        gradient_ = new weight_t[weight_dim];
+        z0_= new weight_t[data_size];
+        w_= new weight_t[weight_dim];
+        memset(w_, 0.0, sizeof(weight_t)*weight_dim);
         //use norm distribution to initialize gradient
-        std::default_random_engine generator;
+        /*std::default_random_engine generator(1);
         std::normal_distribution<weight_t > distribution(0,1.0);
         for (int i=0; i<weight_dim; ++i) {
             weight_t number = distribution(generator);
             w_[i] = number;
-        }
+        }*/
 
 
     }
@@ -53,31 +54,39 @@ public:
     loss = log(1/yz)+alpha*w^2 = -log(yz)+alpha*w^2
 
     */
-    void CalcGradients(Dataset::DATA_MAT& X, const Dataset::LABEL_VEC& y, const weight_t* w,  const float alpha){
+    void CalcGradients(const Dataset::DATA_MAT& X, const Dataset::LABEL_VEC& y, const weight_t* w,  const float alpha){
         f_ = 0.0;
         for (int data_index = 0; data_index < data_size_; ++data_index) {
-            Dataset::FEATURE_VALUE& k_v = X[data_index];
-            double z = 0.0;
-            for (int index = 0; index < k_v.size(); ++index) {
+            //Dataset::FEATURE_VALUE& k_v = X[data_index];
+            weight_t z = 0.0;
+            for (int index = 0; index < X[data_index].size(); ++index) {
                 //printf("%d_%d\n", data_index, k_v[index].first);
-                assert(k_v[index].first>=0);
-                z += w[k_v[index].first] * k_v[index].second;
+                //assert(X[data_index][index].first>=0);
+                z += w[X[data_index][index].first] * X[data_index][index].second;
             }
             weight_t yz = sigmoid_func(z*y[data_index]);
             f_+= -std::log(yz);
             weight_t z_0 = (yz-1.0)*y[data_index];
             z0_[data_index] = z_0;
         }
+
+        for (int dim = 0; dim < weight_dim_; ++dim) {
+            gradient_[dim]=0.0;
+        }
         for (int data_index = 0; data_index < data_size_; ++data_index) {
-            Dataset::FEATURE_VALUE& k_v = X[data_index];
-            for (int index = 0; index < k_v.size(); ++index) {
-                gradient_[k_v[index].first] = k_v[index].second * z0_[data_index] + alpha* w[k_v[index].first];
+            //Dataset::FEATURE_VALUE& k_v = X[data_index];
+            for (int index = 0; index < X[data_index].size(); ++index) {
+                //Log::Info("%d_%d\n", data_index, X[data_index][index].first);
+                gradient_[X[data_index][index].first] += X[data_index][index].second * z0_[data_index];
             }
         }
+        for (int dim = 0; dim < weight_dim_; ++dim) {
+            gradient_[dim] += alpha* w[dim];
+        }
+
         for (int i = 0; i < weight_dim_; ++i) {
             f_ += alpha*w[i]*w[i];
         }
-
     }
 
     weight_t* gradient(){

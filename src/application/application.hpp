@@ -19,7 +19,7 @@ public:
 
     }
     void LoadData(){
-        dataset_.LoadFromFile(config_.file_ignore_header, config_.train_file_name);
+        dataset_.LoadFromFile(config_.file_ignore_header, config_.train_file_name, config_.label_idx);
 
     }
 

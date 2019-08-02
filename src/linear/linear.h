@@ -10,6 +10,8 @@
 #include <dataset.h>
 #include <config.h>
 #include <lbfgs.h>
+#include <alglib/optimization.h>
+using namespace alglib;
 class Linear{
 public:
     void CreateObjective(const std::string& type);
@@ -54,6 +56,10 @@ public:
             int k,
             int ls
     );
+
+    static void alglib_function_grad_(const real_1d_array &x, double &func, real_1d_array &grad, void *ptr);
+    void alglib_function_grad(const real_1d_array &x, double &func, real_1d_array &grad);
+
 private:
     std::unique_ptr<ObjectiveFunction> function_= nullptr;
     Dataset* dataset_ptr;

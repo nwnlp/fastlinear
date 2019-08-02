@@ -47,14 +47,12 @@ extern "C" {
 #define LBFGS_IEEE_FLOAT    1
 #endif/*LBFGS_IEEE_FLOAT*/
 
-#ifdef     LBFGS_FLOAT == 32
+#ifndef WEIGHT_T_USE_DOUBLE
 typedef float lbfgsfloatval_t;
-
-#elif   LBFGS_FLOAT == 64
+#else
 typedef double lbfgsfloatval_t;
 
-#else
-#error "libLBFGS supports single (float; LBFGS_FLOAT = 32) or double (double; LBFGS_FLOAT=64) precision only."
+//#error "libLBFGS supports single (float; LBFGS_FLOAT = 32) or double (double; LBFGS_FLOAT=64) precision only."
 
 #endif
 
