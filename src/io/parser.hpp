@@ -14,14 +14,7 @@
 #include <dataset.h>
 /*! \brief Type of data size, it is better to use signed type*/
 
-const weight_t kMinScore = -std::numeric_limits<weight_t >::infinity();
 
-const weight_t kEpsilon = 1e-15f;
-
-const double kZeroThreshold = 1e-35f;
-
-
-typedef int32_t comm_size_t;
 
 /*! \brief Interface for Parser */
 class Parser {

@@ -23,7 +23,7 @@ public:
         gradient_ = new weight_t[weight_dim];
         z0_= new weight_t[data_size];
         w_= new weight_t[weight_dim];
-        memset(w_, 0.0, sizeof(weight_t)*weight_dim);
+        memset(w_, 0.1, sizeof(weight_t)*weight_dim);
         //use norm distribution to initialize gradient
         /*std::default_random_engine generator(1);
         std::normal_distribution<weight_t > distribution(0,1.0);
@@ -89,6 +89,15 @@ public:
         }
     }
 
+
+
+    void Prediction(const Dataset::DATA_MAT& X, std::vector<label_t>& out_y_pred){
+
+        for (int i = 0; i < X.size(); ++i) {
+            out_y_pred.push_back(predict(X[i]));
+        }
+
+    }
     weight_t* gradient(){
         return gradient_;
     }
@@ -99,6 +108,16 @@ public:
 
     weight_t* weights(){
         return w_;
+    }
+
+private:
+    label_t predict(const Dataset::FEATURE_VALUE& feature_values){
+        weight_t wx=0.0;
+        for (int i = 0; i < feature_values.size(); ++i) {
+            wx += w_[feature_values[i].first]*feature_values[i].second;
+        }
+        weight_t prob = sigmoid_func(wx);
+        return static_cast<label_t>(prob);
     }
 
 private:

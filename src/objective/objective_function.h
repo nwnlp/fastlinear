@@ -13,7 +13,9 @@ public:
     virtual weight_t* gradient() = 0;
     virtual weight_t loss() = 0;
     virtual weight_t* weights() = 0;
+    virtual void Prediction(const Dataset::DATA_MAT& X, std::vector<weight_t>& out_y_pred) = 0;
 
-
+private:
+    virtual label_t predict(const Dataset::FEATURE_VALUE& feature_values) = 0;
 };
 #endif //FASTLINEAR_OBJECTIVE_FUNCTION_H

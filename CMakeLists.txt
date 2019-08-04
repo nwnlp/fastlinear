@@ -16,6 +16,8 @@ include_directories(src/objective)
 include_directories(src/linear)
 include_directories(src/application)
 include_directories(src/math)
+include_directories(src/metrics)
+
 
 #add_executable(test_alglib
 #        src/math/alglib/optimization.cpp

@@ -9,22 +9,24 @@
 #include <config.h>
 class Application{
 public:
-    void Init(const std::string& type){
+    void Init(){
         LoadData();
-        Log::Info("File name:%s \n data size:%d feature size %d", dataset_.data_filename_.c_str(),
-                dataset_.num_data_,
-                dataset_.num_total_features_);
-        linear.CreateObjective(type);
+        dataset_.PrintInfo();
 
 
     }
     void LoadData(){
-        dataset_.LoadFromFile(config_.file_ignore_header, config_.train_file_name, config_.label_idx);
+        bool is_cls_prob = !(config_.take_type == REGRESSION);
+        dataset_.LoadFromFile(config_.file_ignore_header, config_.train_file_name, config_.label_idx,is_cls_prob);
 
     }
 
     void Train(){
         linear.Train(dataset_, config_);
+    }
+
+    void Predict(){
+        linear.Predict(dataset_);
     }
     Config config_;
     Dataset dataset_;

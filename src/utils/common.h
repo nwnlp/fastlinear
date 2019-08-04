@@ -26,7 +26,35 @@
 #include "intrin.h"
 #endif
 
+#ifdef WEIGHT_T_USE_DOUBLE
+typedef double weight_t;
+#else
+typedef float weight_t;
+#endif
+
+#ifdef LABEL_T_USE_DOUBLE
+typedef double label_t;
+#else
+typedef float label_t;
+#endif
+
+const weight_t kMinScore = -std::numeric_limits<weight_t >::infinity();
+
+const weight_t kEpsilon = 1e-15f;
+
+const double kZeroThreshold = 1e-35f;
+
+
+typedef int32_t comm_size_t;
+
 namespace Common{
+
+
+inline static bool EqualTpZero(weight_t t){
+  if(std::fabs(t) < kZeroThreshold){
+    return true;
+  }
+}
 
 inline static char tolower(char in) {
   if (in <= 'Z' && in >= 'A')

@@ -2,9 +2,10 @@
 // Created by niw on 2019/7/31.
 //
 #include "linear.h"
-
-void Linear::CreateObjective(const std::string& type){
-    if(type == "logistic regression"){
+#include <fstream>
+#include <binary_metrics.hpp>
+void Linear::CreateObjective(const MODEL_TYPE type){
+    if(type ==  LOGISTIC_REGRESSION){
         function_.reset(new BinaryObjective);
     }
 }
@@ -83,16 +84,52 @@ void Linear::alglib_function_grad(const real_1d_array &x, double &func, real_1d_
 
 void Linear::alglib_function_grad_(const real_1d_array &x, double &func, real_1d_array &grad, void *ptr)
 {
-    reinterpret_cast<Linear*>(ptr)->alglib_function_grad( x, func, grad);
-    return;
+    return reinterpret_cast<Linear*>(ptr)->alglib_function_grad( x, func, grad);
+
+}
+
+void Linear::PrepareTrainData(){
+    if(config_ptr->take_type == BINARY_CLASSIFICATION){
+        //EncodeLabel(dataset_ptr->labels_);
+        uint32_t label_cnt = dataset_ptr->label_count.size();
+        if(label_cnt != 2){
+            Log::Fatal("Invalid Data for binary classification, count of distinct label:%d", label_cnt);
+        }
+        if(dataset_ptr->label_count.find(-1) != dataset_ptr->label_count.end()
+        and dataset_ptr->label_count.find(1) != dataset_ptr->label_count.end()){
+            //raw data's labels is -1 and 1
+        }else if(dataset_ptr->label_count.find(0.0) != dataset_ptr->label_count.end()
+                 and dataset_ptr->label_count.find(1) != dataset_ptr->label_count.end()){
+            //row data's labels is 0 and 1
+            for (int data_index = 0; data_index < dataset_ptr->num_data_; ++data_index) {
+                if(std::fabs(dataset_ptr->labels_[data_index]) < kZeroThreshold){
+                    dataset_ptr->labels_[data_index] = -1.0;
+                }
+            }
+            use_0_as_neg_label_ = true;
+        }
+        else{
+            Log::Fatal("Invalid Data for binary classification, use 0/1 or -1/1 as labels");
+        }
+
+    }
+    //normalize
+
+    if(config_ptr->fit_intercept){
+       // dataset_ptr->AddBiasTag();
+    }
+
+
 }
 
 void Linear::Train(Dataset& dataset, Config& config){
+
     dataset_ptr = &dataset;
     config_ptr = &config;
-    if(config.fit_intercept){
-        dataset_ptr->AddBiasTag();
-    }
+    CreateObjective(config_ptr->model_type);
+    PrepareTrainData();
+    //dataset_ptr->Normalize(config_ptr->normalize_data_type);
+
     function_->Init(dataset.num_data_, dataset.num_total_features_);
 //    real_1d_array x;
 //    x.setcontent(dataset.num_total_features_, function_->weights());
@@ -119,10 +156,53 @@ void Linear::Train(Dataset& dataset, Config& config){
 
     int ret = lbfgs(dataset.num_total_features_, function_->weights(), nullptr, _evaluate, _progress, this, NULL);
     /* Report the result. */
-    for (int i = 0; i < dataset.num_total_features_; ++i) {
-        printf("%lf ", function_->weights()[i]);
-    }
+//    for (int i = 0; i < dataset.num_total_features_; ++i) {
+//        if(std::fabs(function_->weights()[i])<kZeroThreshold){
+//            continue;
+//        }
+//        printf("%d:%lf ", i,function_->weights()[i]);
+//    }
     printf("L-BFGS optimization terminated with status code = %s\n", lbfgs_strerror(ret));
+    SaveModel("model.txt", function_->weights(), dataset.num_total_features_);
 
 
+
+}
+
+void Linear::OutputPrediction(const std::string& filename, const std::vector<label_t >y_pred){
+
+    std::string out = std::string("labels 1 ") + (use_0_as_neg_label_?"0":"-1");
+    out+="\n";
+    for (int data_index = 0; data_index < y_pred.size(); ++data_index) {
+        label_t label = dataset_ptr->labels_[data_index];
+        label_t positive_prob = y_pred[data_index];
+        label_t negtive_prob = 1.0-positive_prob;
+        out += std::to_string(label) + " "+std::to_string(positive_prob)+" "+std::to_string(negtive_prob)+"\n";
+    }
+    out[out.size()-1]=0;
+    std::ofstream fout(filename);
+    fout<<out;
+    fout.close();
+
+
+}
+
+void Linear::SaveModel(const std::string& model_file, weight_t* w, uint32_t num_w){
+    std::string out = "w:\n";
+    for (int i = 0; i < num_w; ++i) {
+        out += std::to_string(w[i])+"\n";
+    }
+    out[out.size()-1]=0;
+    std::ofstream fout(model_file);
+    fout<<out;
+    fout.close();
+}
+
+void Linear::Predict(Dataset& dataset){
+    std::vector<label_t >y_pred;
+    function_->Prediction(dataset.data_, y_pred);
+    Binary_Metrics metrics;
+    metrics.Init(dataset.labels_, y_pred);
+    printf("log loss:%lf\n",metrics.logloss());
+    OutputPrediction("fl_prediction.txt",y_pred);
 }
