@@ -55,6 +55,7 @@ public:
 
     */
     void CalcGradients(const Dataset::DATA_MAT& X, const Dataset::LABEL_VEC& y, const weight_t* w,  const float alpha){
+        clock_t start = clock();
         f_ = 0.0;
         for (int data_index = 0; data_index < data_size_; ++data_index) {
             //Dataset::FEATURE_VALUE& k_v = X[data_index];
@@ -87,6 +88,8 @@ public:
         for (int i = 0; i < weight_dim_; ++i) {
             f_ += alpha*w[i]*w[i];
         }
+        clock_t end = clock();
+        printf("grad time=%f\n",(float)(end-start)*1000/CLOCKS_PER_SEC);
     }
 
 
