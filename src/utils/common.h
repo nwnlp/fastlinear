@@ -46,6 +46,9 @@ const double kZeroThreshold = 1e-35f;
 
 
 typedef int32_t comm_size_t;
+#define EXP_TABLE_SIZE 5000
+#define MIN_EXP -25
+#define LOG_TABLE_SIZE 5000
 
 namespace Common{
 
@@ -918,6 +921,28 @@ static T SafeLog(T x) {
   } else {
     return -INFINITY;
   }
+}
+
+static weight_t* InitExpTable(){
+  weight_t* expTable;
+  expTable = new weight_t[EXP_TABLE_SIZE];
+  for (int i = 0; i < EXP_TABLE_SIZE; ++i) {
+    expTable[i] = std::exp((i / (weight_t)EXP_TABLE_SIZE ) * MIN_EXP);
+    //printf("%20.20lf %20.20lf\n", (i / (weight_t)EXP_TABLE_SIZE ) * MIN_EXP,expTable[i] );
+  }
+  return expTable;
+}
+
+static weight_t* InitLogTable(){
+  weight_t* logTable;
+  logTable = new weight_t[LOG_TABLE_SIZE];
+  for (int i = 1; i < LOG_TABLE_SIZE; ++i) {
+    logTable[i] = std::log(i/(weight_t)LOG_TABLE_SIZE);
+  }
+  return logTable;
+}
+static void ReleaseExpTable(weight_t* expTable){
+   delete[] expTable;
 }
 
 }

@@ -12,13 +12,23 @@
 #include <map>
 class Dataset {
 public:
+    struct FEATURE_NODE{
+        int index;
+        weight_t value;
+    };
+    ~Dataset(){
+        if(labels_){
+            delete[] labels_;
+        }
+        if(data_){
+            for (int i = 0; i < num_data_; ++i) {
+                delete[] data_[i];
+            }
+            delete[] data_;
+        }
 
-    typedef std::vector<std::pair<int, weight_t>> FEATURE_VALUE;
-    typedef std::vector<FEATURE_VALUE> DATA_MAT;
-    typedef std::vector<label_t > LABEL_VEC;
+    }
     void LoadFromFile(bool ignore_header, const char* filename, int label_idx,bool is_cls_prob);
-    void Normalize(const std::string& type);
-    void AddBiasTag();
     void PrintInfo(){
         Log::Info("Load data from %s \n data size:%d feature size:%d", data_filename_.c_str(),
                 num_data_, num_total_features_);
@@ -36,8 +46,8 @@ public:
     uint32_t num_data_;
     uint32_t num_total_features_;
 
-    DATA_MAT data_;
-    LABEL_VEC labels_;
+    FEATURE_NODE** data_ = nullptr;
+    weight_t* labels_ = nullptr;
     std::map<int, int> label_count;
     std::vector<weight_t> feature_max_values_;
     std::vector<weight_t> feature_min_values_;

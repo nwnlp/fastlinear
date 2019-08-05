@@ -1,8 +1,59 @@
 #include <iostream>
 #include <Eigen/Dense>
+#include <vector>
+#include <time.h>
+#define MAX_RAND 10
+
+#include <common.h>
+
 using namespace Eigen;
 int main(int argc, char **argv){
+    int max_test= MAX_RAND;
+    std::vector<double> vec(max_test,10.0);
+    int * visits = new int [max_test];
+    for (int i = 0; i < max_test; ++i) {
+        visits[i]=long((double)rand()/RAND_MAX * MAX_RAND);
+    }
+    double *origin = new double [max_test];
+    memset(origin, 10.0, sizeof(double)*max_test);
 
+    clock_t c1 = clock();
+    for (int i = 0; i < max_test; ++i) {
+        double tmp = vec[visits[i]];
+    }
+    clock_t c2 = clock();
+    for (int i = 0; i < max_test; ++i) {
+        double tmp = origin[visits[i]];
+    }
+    clock_t c3 = clock();
+
+    for (int i = 0; i < max_test; ++i) {
+         origin[i] = 1.1;
+    }
+    clock_t c4 = clock();
+    memset(origin, 0, sizeof(double)*max_test);
+    clock_t c5 = clock();
+
+    weight_t* expTable = Common::InitExpTable();
+    weight_t exp1 = expTable[(int)(-0.1 * EXP_TABLE_SIZE / MIN_EXP)];
+    //weight_t exp1 = expTable[EXP_TABLE_SIZE-1];
+    weight_t exp2 = std::exp(-0.1);
+    printf("%20.20lf %20.20lf\n", exp1,exp2);
+
+    weight_t* logTable = Common::InitLogTable();
+    weight_t log1 = logTable[(int)(0.001 * LOG_TABLE_SIZE)];
+    //weight_t exp1 = expTable[EXP_TABLE_SIZE-1];
+    weight_t log2 = std::log(0.001);
+    printf("%20.20lf %20.20lf\n", log1,log2);
+
+
+    return 0;
+    printf("time compare=%f %f %f %f %f %f\n",(float)(c2-c1)*1000/CLOCKS_PER_SEC,
+            (float)(c3-c2)*1000/CLOCKS_PER_SEC,
+           (float)(c4-c3)*1000/CLOCKS_PER_SEC,
+           (float)(c5-c4)*1000/CLOCKS_PER_SEC);
+    return 0;
+    int t = RAND_MAX;
     std::cout<<"test Eigen"<<std::endl;
     MatrixXf m(2,2); //2*2,float
     m(0,0) = 3;

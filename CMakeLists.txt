@@ -27,25 +27,25 @@ include_directories(src/metrics)
 #        src/math/alglib/solvers.cpp
 #        src/math/alglib/ap.cpp
 #        src/test/test_alglib.cpp)
-
-#add_executable(test_eigen
-#        src/solver/lbfgs.cpp
-#        src/test/test_eigen.cpp)
+#
+add_executable(test_eigen
+        src/solver/lbfgs.cpp
+        src/test/test_eigen.cpp)
 #
 #add_executable(test_lbfgs
 #        src/solver/lbfgs.cpp
 #        src/test/test_lbfgs.cpp)
-
-add_executable(fastlinear
-        src/io/dataset.cpp
-        src/io/file_io.cpp
-        src/io/parser.cpp
-        src/linear/linear.cpp
-        src/solver/lbfgs.cpp
-        src/math/alglib/optimization.cpp
-        src/math/alglib/linalg.cpp
-        src/math/alglib/alglibinternal.cpp
-        src/math/alglib/alglibmisc.cpp
-        src/math/alglib/solvers.cpp
-        src/math/alglib/ap.cpp
-        src/main.cpp)
+#
+#add_executable(fastlinear
+#        src/io/dataset.cpp
+#        src/io/file_io.cpp
+#        src/io/parser.cpp
+#        src/linear/linear.cpp
+#        src/solver/lbfgs.cpp
+#        src/math/alglib/optimization.cpp
+#        src/math/alglib/linalg.cpp
+#        src/math/alglib/alglibinternal.cpp
+#        src/math/alglib/alglibmisc.cpp
+#        src/math/alglib/solvers.cpp
+#        src/math/alglib/ap.cpp
+#        src/main.cpp)

@@ -200,9 +200,9 @@ void Linear::SaveModel(const std::string& model_file, weight_t* w, uint32_t num_
 
 void Linear::Predict(Dataset& dataset){
     std::vector<label_t >y_pred;
-    function_->Prediction(dataset.data_, y_pred);
+    function_->Prediction(dataset.data_, dataset.num_data_, y_pred);
     Binary_Metrics metrics;
-    metrics.Init(dataset.labels_, y_pred);
+    metrics.Init(dataset.labels_, y_pred.data(), dataset.num_data_);
     printf("log loss:%lf\n",metrics.logloss());
     OutputPrediction("fl_prediction.txt",y_pred);
 }
