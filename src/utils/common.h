@@ -47,7 +47,7 @@ const double kZeroThreshold = 1e-35f;
 
 typedef int32_t comm_size_t;
 #define EXP_TABLE_SIZE 5000
-#define MIN_EXP -25
+#define MIN_EXP -20
 #define LOG_TABLE_SIZE 5000
 
 namespace Common{
@@ -931,6 +931,19 @@ static weight_t* InitExpTable(){
     //printf("%20.20lf %20.20lf\n", (i / (weight_t)EXP_TABLE_SIZE ) * MIN_EXP,expTable[i] );
   }
   return expTable;
+}
+
+static weight_t* InitSigmoidTable(){
+    weight_t* expTable;
+    expTable = new weight_t[EXP_TABLE_SIZE];
+    for (int i = 0; i < EXP_TABLE_SIZE; ++i) {
+        weight_t exp_t = std::exp((i / (weight_t)EXP_TABLE_SIZE ) * MIN_EXP);
+        weight_t sgm = 1.0/(1.0+exp_t);
+        //printf("%20.20lf %20.20lf\n", exp_t,sgm);
+        expTable[i]=sgm;
+    }
+    return expTable;
+
 }
 
 static weight_t* InitLogTable(){

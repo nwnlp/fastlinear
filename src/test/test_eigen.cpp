@@ -34,25 +34,16 @@ int main(int argc, char **argv){
     memset(origin, 0, sizeof(double)*max_test);
     clock_t c5 = clock();
 
-    weight_t* expTable = Common::InitExpTable();
-    weight_t exp1 = expTable[(int)(-0.1 * EXP_TABLE_SIZE / MIN_EXP)];
-    //weight_t exp1 = expTable[EXP_TABLE_SIZE-1];
-    weight_t exp2 = std::exp(-0.1);
-    printf("%20.20lf %20.20lf\n", exp1,exp2);
-
-    weight_t* logTable = Common::InitLogTable();
-    weight_t log1 = logTable[(int)(0.001 * LOG_TABLE_SIZE)];
-    //weight_t exp1 = expTable[EXP_TABLE_SIZE-1];
-    weight_t log2 = std::log(0.001);
-    printf("%20.20lf %20.20lf\n", log1,log2);
+    weight_t* expTable = Common::InitSigmoidTable();
 
 
-    return 0;
     printf("time compare=%f %f %f %f %f %f\n",(float)(c2-c1)*1000/CLOCKS_PER_SEC,
             (float)(c3-c2)*1000/CLOCKS_PER_SEC,
            (float)(c4-c3)*1000/CLOCKS_PER_SEC,
-           (float)(c5-c4)*1000/CLOCKS_PER_SEC);
+           (float)(c5-c4)*1000/CLOCKS_PER_SEC
+    );
     return 0;
+
     int t = RAND_MAX;
     std::cout<<"test Eigen"<<std::endl;
     MatrixXf m(2,2); //2*2,float
