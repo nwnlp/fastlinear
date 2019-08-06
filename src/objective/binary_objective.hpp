@@ -89,46 +89,49 @@ public:
     */
     void CalcGradients(Dataset::FEATURE_NODE** X, weight_t* y, const weight_t* w, float alpha){
         clock_t start = clock();
-        //weight_t max_z = -10000;
+        weight_t max_z = -10000;
         f_ = 0.0;
+        OMP_INIT_EX();
+        #pragma omp parallel for schedule(static)
         for (int data_index = 0; data_index < data_size_; ++data_index) {
-            Dataset::FEATURE_NODE* x = X[data_index];
+            const Dataset::FEATURE_NODE* x = X[data_index];
             weight_t z = 0.0;
             //x.dot(w)
             while (x->index != -1) {
                 z += w[x->index] * x->value;
                 x++;
             }
-            z0_[data_index] = z;
-        }
-        for (int data_index = 0; data_index < data_size_; ++data_index) {
-            //max_z = std::max(std::fabs(z), max_z);
+            max_z = std::max(std::fabs(z), max_z);
             //yz = phi(y * z)
-            weight_t y_vaule = y[data_index];
-            weight_t yz = fast_sigmoid(z0_[data_index]*y_vaule);
+            weight_t yz = fast_sigmoid(z*y[data_index]);
+            OMP_LOOP_EX_BEGIN();
             f_+= -std::log(yz);
+            OMP_LOOP_EX_END();
+            //f_+= -logTable_[(int)(yz * LOG_TABLE_SIZE)];
             //z0 = (yz - 1) * y
-            weight_t z_0 = (yz-1.0)*y_vaule;
+            weight_t z_0 = (yz-1.0)*y[data_index];
             z0_[data_index] = z_0;
         }
+
         memset(gradient_, 0, sizeof(weight_t)*weight_dim_);
+        #pragma omp parallel for schedule(static)
         for (int data_index = 0; data_index < data_size_; ++data_index) {
-            Dataset::FEATURE_NODE* x = X[data_index];
-            weight_t z = z0_[data_index];
+            const Dataset::FEATURE_NODE* x = X[data_index];
             while (x->index != -1){
                 //Log::Info("%d_%d\n", data_index, X[data_index][index].first);
-                gradient_[x->index] += x->value * z;
+                OMP_LOOP_EX_BEGIN();
+                gradient_[x->index] += x->value * z0_[data_index];
+                OMP_LOOP_EX_END();
                 x++;
             }
         }
+        OMP_THROW_EX();
         for (int dim = 0; dim < weight_dim_; ++dim) {
             gradient_[dim] += alpha* w[dim];
             f_ += alpha*w[dim]*w[dim];
         }
-
         clock_t end = clock();
         printf("grad time=%f\n",(float)(end-start)*1000/CLOCKS_PER_SEC);
-        //printf("max_z=%f\n", max_z);
     }
 
 

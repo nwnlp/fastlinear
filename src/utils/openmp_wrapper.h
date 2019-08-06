@@ -7,7 +7,7 @@
 #ifdef _OPENMP
 
 #include <omp.h>
-#include <LightGBM/utils/log.h>
+#include <log.h>
 
 #include <exception>
 #include <memory>

@@ -23,7 +23,7 @@ public:
     int label_idx= 0;
     bool fit_intercept = false;
     const char* normalize_data_type = "min_max";
-    const char* train_file_name = "/Users/johnny/Code/liblinear-master/news20.binary";
+    const char* train_file_name = "/home/niw/liblinear-master/libsvm.train";
     MODEL_TYPE model_type = LOGISTIC_REGRESSION;
     TASK_TYPE take_type = BINARY_CLASSIFICATION;
     //L2 Norm
