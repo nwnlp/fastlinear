@@ -12,8 +12,6 @@ public:
     void Init(){
         LoadData();
         dataset_.PrintInfo();
-
-
     }
     void LoadData(){
         bool is_cls_prob = !(config_.take_type == REGRESSION);

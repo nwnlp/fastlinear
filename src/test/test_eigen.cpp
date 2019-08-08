@@ -5,43 +5,62 @@
 #define MAX_RAND 10
 
 #include <common.h>
-
+#include <random>
 using namespace Eigen;
-int main(int argc, char **argv){
-    int max_test= MAX_RAND;
-    std::vector<double> vec(max_test,10.0);
-    int * visits = new int [max_test];
-    for (int i = 0; i < max_test; ++i) {
-        visits[i]=long((double)rand()/RAND_MAX * MAX_RAND);
+
+
+void test_array(){
+
+    int * v1 = new int [10000000];
+    int * v2 = new int [10000000];
+    int * v3 = new int [10000000];
+
+    for (int i = 0; i < 10000000; ++i) {
+        v1[i]=v2[i]=v3[i]=i;
     }
-    double *origin = new double [max_test];
-    memset(origin, 10.0, sizeof(double)*max_test);
+    int * result = new int [10000000];
+    memset(result, 0, sizeof(int)*10000000);
+    std::default_random_engine generator(1);
+    std::normal_distribution<weight_t > distribution(1,10000000);
+    int * index = new int [10000000];
+
+    for (int i=0; i<10000000; ++i) {
+        int number = distribution(generator);
+        index[i] = number;
+    }
 
     clock_t c1 = clock();
-    for (int i = 0; i < max_test; ++i) {
-        double tmp = vec[visits[i]];
+    int s = 0;
+    for (int i = 0; i < 10000000; ++i) {
+        if (s == 0) {
+            result[0] = v1[i] + v2[i] + v3[i];
+            s = 1;
+        }else{
+            result[10000000-1] = v1[i] + v2[i] + v3[i];
+            s=0;
+        }
     }
     clock_t c2 = clock();
-    for (int i = 0; i < max_test; ++i) {
-        double tmp = origin[visits[i]];
+    for (int i = 0; i < 10000000; ++i) {
+        result[i]+=v1[i];
+    }
+    for (int i = 0; i < 10000000; ++i) {
+        result[i]+=v2[i];
+    }
+    for (int i = 0; i < 10000000; ++i) {
+        result[i]+=v3[i];
     }
     clock_t c3 = clock();
-
-    for (int i = 0; i < max_test; ++i) {
-         origin[i] = 1.1;
-    }
-    clock_t c4 = clock();
-    memset(origin, 0, sizeof(double)*max_test);
-    clock_t c5 = clock();
-
-    weight_t* expTable = Common::InitSigmoidTable();
-
-
-    printf("time compare=%f %f %f %f %f %f\n",(float)(c2-c1)*1000/CLOCKS_PER_SEC,
-            (float)(c3-c2)*1000/CLOCKS_PER_SEC,
-           (float)(c4-c3)*1000/CLOCKS_PER_SEC,
-           (float)(c5-c4)*1000/CLOCKS_PER_SEC
+    printf("time compare=%f %f\n",(float)(c2-c1)*1000/CLOCKS_PER_SEC,
+           (float)(c3-c2)*1000/CLOCKS_PER_SEC
     );
+
+
+}
+int main(int argc, char **argv){
+
+    test_array();
+
     return 0;
 
     int t = RAND_MAX;

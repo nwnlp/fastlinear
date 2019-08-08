@@ -23,11 +23,11 @@ public:
     int label_idx= 0;
     bool fit_intercept = false;
     const char* normalize_data_type = "min_max";
-    const char* train_file_name = "/home/niw/liblinear-master/libsvm.train";
+    const char* train_file_name = "E:\\kaggle\\liblinear-master\\news20.binary";
     MODEL_TYPE model_type = LOGISTIC_REGRESSION;
     TASK_TYPE take_type = BINARY_CLASSIFICATION;
     //L2 Norm
-    float alpha = 0.01;
+    float alpha = 1;
     //
     int iterations = 100;
 

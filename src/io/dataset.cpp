@@ -20,7 +20,8 @@ void Dataset::LoadFromFile(bool ignore_header, const char* filename, int label_i
     data_filename_ = filename;
     label_t label;
     data_ = new FEATURE_NODE*[num_data_];
-    labels_ = new weight_t[num_data_];
+    y_ = new weight_t[num_data_];
+    labels_.clear();
     std::vector<std::pair<int, weight_t>> oneline_features;
     int max_feature_index = -1;
     for (int i = 0; i < num_data_; ++i) {
@@ -46,11 +47,44 @@ void Dataset::LoadFromFile(bool ignore_header, const char* filename, int label_i
             data_[i][j].value = feature_value;
         }
         data_[i][value_cnt].index = -1;
-        labels_[i] = label;
-        if(is_cls_prob)
-            label_count[label] += 1;
+        if(is_cls_prob){
+            label_count[static_cast<int>(label)] += 1;
+            labels_.push_back(static_cast<int>(label));
+        }
+        else{
+            //regression
+            y_[i] = label;
+        }
     }
     num_total_features_ = std::max(parser->TotalColumns()-1, max_feature_index+1);
 
+    if(is_cls_prob){
+        if(label_count.size() == 2){
+            //!binary classification
+            std::map<int, int>::iterator st = label_count.begin();
+            int label1 = st->first;
+            int label1_cnt = st->second;
+            st++;
+            int label2 = st->first;
+            int label2_cnt = st->second;
+            if(label1 > label2){
+                Common::swap(label1, label2);
+            }
+            //!label1 as -1 label2 as 1
+            for (int data_index = 0; data_index < labels_.size(); ++data_index) {
+                if(labels_[data_index] == label1){
+                    y_[data_index] = -1.0;
+                }
+                else{
+                    y_[data_index] = 1.0;
+                }
+            }
+            y2label_[-1.0] = label1;
+            y2label_[1.0] = label2;
+
+        }else{
+            //!multiple classification
+        }
+    }
 }
 

@@ -923,6 +923,11 @@ static T SafeLog(T x) {
   }
 }
 
+template <typename T>
+static void swap(T& x, T& y) {
+    T t=x; x=y; y=t;
+}
+
 static weight_t* InitExpTable(){
   weight_t* expTable;
   expTable = new weight_t[EXP_TABLE_SIZE];
