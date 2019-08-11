@@ -14,7 +14,8 @@ public:
         dataset_.PrintInfo();
     }
     void LoadData(){
-        bool is_cls_prob = !(config_.take_type == REGRESSION);
+        bool is_cls_prob = (config_.model_type == LOGISTIC_REGRESSION or
+                                config_.model_type == SOFTMAX);
         dataset_.LoadFromFile(config_.file_ignore_header, config_.train_file_name, config_.label_idx,is_cls_prob);
 
     }

@@ -90,5 +90,6 @@ private:
     std::unique_ptr<ObjectiveFunction> function_= nullptr;
     Dataset* dataset_ptr;
     Config* config_ptr;
+    std::string model_name;
 };
 #endif //FASTLINEAR_LINEAR_H

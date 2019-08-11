@@ -32,7 +32,7 @@ void Dataset::LoadFromFile(bool ignore_header, const char* filename, int label_i
         data_[i] = new FEATURE_NODE[value_cnt+1];
         for (int j = 0; j < value_cnt; ++j) {
             int feature_index = oneline_features[j].first;
-            weight_t feature_value = oneline_features[j].second;
+            weight_t feature_value = oneline_features[j].second/255;
             if(feature_min_values_.size() < feature_index+1){
                 feature_min_values_.resize(feature_index+1);
                 feature_min_values_[feature_index]=std::numeric_limits<weight_t >::infinity();
@@ -84,7 +84,13 @@ void Dataset::LoadFromFile(bool ignore_header, const char* filename, int label_i
 
         }else{
             //!multiple classification
+            for (int data_index = 0; data_index < labels_.size(); ++data_index) {
+                y_[data_index] = labels_[data_index];
+
+
+            }
         }
+        num_class_ = label_count.size();
     }
 }
 

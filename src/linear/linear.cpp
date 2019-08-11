@@ -4,10 +4,14 @@
 #include "linear.h"
 #include <fstream>
 #include <binary_metrics.hpp>
-
+#include <multiclass_objective.hpp>
 void Linear::CreateObjective(const MODEL_TYPE type){
     if(type ==  LOGISTIC_REGRESSION){
         function_.reset(new BinaryObjective);
+        model_name = "logistic regression";
+    }else if(type ==  SOFTMAX) {
+        function_.reset(new SoftMaxObjective);
+        model_name = "softmax";
     }
 }
 
@@ -47,6 +51,11 @@ lbfgsfloatval_t Linear::evaluate(
 {
     weight_t loss = function_->CalcLoss(dataset_ptr->data_, dataset_ptr->y_, x, config_ptr->alpha);
     function_->CalcGradients(dataset_ptr->data_, dataset_ptr->y_, x, config_ptr->alpha, g);
+//    printf("loss:%lf\n", loss);
+//    for (int i = 0; i < 100; ++i) {
+//        printf("%lf ", x[i]);
+//    }
+//    printf("\n");
     return loss;
 }
 
@@ -80,10 +89,10 @@ void Linear::Train(Dataset& dataset, Config& config){
     CreateObjective(config_ptr->model_type);
     //dataset_ptr->Normalize(config_ptr->normalize_data_type);
 
-    function_->Init(dataset.num_data_, dataset.num_total_features_);
+    function_->Init(dataset.num_data_, dataset.num_total_features_, dataset_ptr->num_class_);
 
 
-    //int ret = lbfgs(dataset.num_total_features_, function_->weights(), nullptr, _evaluate, _progress, this, NULL);
+    int ret = lbfgs(dataset.num_total_features_, function_->weights(), nullptr, _evaluate, _progress, this, NULL);
     /* Report the result. */
 //    for (int i = 0; i < dataset.num_total_features_; ++i) {
 //        if(std::fabs(function_->weights()[i])<kZeroThreshold){
@@ -92,18 +101,18 @@ void Linear::Train(Dataset& dataset, Config& config){
 //        printf("%d:%lf ", i,function_->weights()[i]);
 //    }
 
-    //printf("L-BFGS optimization terminated with status code = %s\n", lbfgs_strerror(ret));
-    float eps = 0.01;
-    int neg = dataset_ptr->label_count[-1];
-    int pos = dataset_ptr->label_count[1];
-    double primal_solver_tol = eps*std::max(std::min(pos,neg), 1)/dataset_ptr->num_data_;
-    double eps_cg = 0.1;
-    TRON tron_obj(this, primal_solver_tol, eps_cg);
-    printf("%lf %lf\n", primal_solver_tol, eps_cg);
-    tron_obj.set_print_string(Linear::tron_progress);
-    tron_obj.tron(function_->weights());
+    printf("L-BFGS optimization terminated with status code = %s\n", lbfgs_strerror(ret));
+//    float eps = 0.01;
+//    int neg = dataset_ptr->label_count[-1];
+//    int pos = dataset_ptr->label_count[1];
+//    double primal_solver_tol = eps*std::max(std::min(pos,neg), 1)/dataset_ptr->num_data_;
+//    double eps_cg = 0.1;
+//    TRON tron_obj(this, primal_solver_tol, eps_cg);
+//    printf("%lf %lf\n", primal_solver_tol, eps_cg);
+//    tron_obj.set_print_string(Linear::tron_progress);
+//    tron_obj.tron(function_->weights());
 
-    SaveModel("model.txt", function_->weights(), dataset.num_total_features_);
+    //SaveModel("model.txt", function_->weights(), dataset.num_total_features_);
 
 
 
@@ -131,7 +140,8 @@ void Linear::OutputPrediction(const std::string& filename, const std::vector<lab
 }
 
 void Linear::SaveModel(const std::string& model_file, weight_t* w, uint32_t num_w){
-    std::string out = "w:\n";
+
+    std::string out = model_name+"\nw:\n";
     for (int i = 0; i < num_w; ++i) {
         out += std::to_string(w[i])+"\n";
     }
@@ -142,10 +152,10 @@ void Linear::SaveModel(const std::string& model_file, weight_t* w, uint32_t num_
 }
 
 void Linear::Predict(Dataset& dataset){
-    std::vector<label_t >y_pred;
-    function_->Prediction(dataset.data_, dataset.num_data_, y_pred);
-    Binary_Metrics metrics;
-    metrics.Init(dataset.y_, y_pred.data(), dataset.num_data_);
-    printf("log loss:%lf\n",metrics.logloss());
-    OutputPrediction("fl_prediction.txt",y_pred);
+    std::vector<int >y_pred;
+    function_->Predict(dataset.data_, dataset.num_data_, y_pred);
+    //Binary_Metrics metrics;
+    //metrics.Init(dataset.y_, y_pred.data(), dataset.num_data_);
+    //printf("log loss:%lf\n",metrics.logloss());
+    //OutputPrediction("fl_prediction.txt",y_pred);
 }

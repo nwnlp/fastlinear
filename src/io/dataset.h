@@ -45,7 +45,7 @@ public:
     std::string data_filename_;
     uint32_t num_data_;
     uint32_t num_total_features_;
-
+    int num_class_;
     FEATURE_NODE** data_ = nullptr;
     weight_t* y_ = nullptr;
     std::vector<int> labels_;

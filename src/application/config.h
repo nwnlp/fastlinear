@@ -5,29 +5,24 @@
 #ifndef FASTLINEAR_CONFIG_H
 #define FASTLINEAR_CONFIG_H
 
-enum TASK_TYPE{
-    BINARY_CLASSIFICATION,
-    MULTICLASS_CLASSIFICATION,
-    REGRESSION,
-};
 enum MODEL_TYPE{
     LOGISTIC_REGRESSION,
+    SOFTMAX,
     FM,
 
 };
 struct Config{
 public:
-    bool file_ignore_header = false;
+    bool file_ignore_header = true;
     /*!
      *index of label column start from 0*/
     int label_idx= 0;
     bool fit_intercept = false;
     const char* normalize_data_type = "min_max";
-    const char* train_file_name = "E:\\kaggle\\liblinear-master\\news20.binary";
-    MODEL_TYPE model_type = LOGISTIC_REGRESSION;
-    TASK_TYPE take_type = BINARY_CLASSIFICATION;
+    const char* train_file_name = "/Users/johnny/Downloads/mnist-in-csv/mnist_train.csv";
+    MODEL_TYPE model_type = SOFTMAX;
     //L2 Norm
-    float alpha = 1;
+    float alpha = 0.05;
     //
     int iterations = 100;
 
